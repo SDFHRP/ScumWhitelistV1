@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCUM RP Whitelist</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{
+min-height:100vh;
+background:linear-gradient(135deg,#0f0f0f,#1a1a1a);
+display:flex;align-items:center;justify-content:center;
+padding:30px;color:#fff
+}
+.card{
+width:100%;max-width:1000px;
+background:rgba(20,20,20,.95);
+border:1px solid #333;
+border-radius:24px;
+padding:35px;
+box-shadow:0 0 40px rgba(0,0,0,.5)
+}
+h1{text-align:center;font-size:42px;color:#ff7a18}
+.sub{text-align:center;color:#bbb;margin:10px 0 30px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+label{display:block;margin:12px 0 6px}
+input,textarea{
+width:100%;padding:14px;border-radius:12px;
+border:1px solid #333;background:#222;color:#fff
+}
+textarea{min-height:120px}
+.section{
+margin-top:25px;color:#ff7a18;font-weight:700;
+border-left:4px solid #ff7a18;padding-left:10px
+}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px}
+.chk{background:#222;padding:12px;border-radius:12px}
+button{
+width:100%;margin-top:25px;padding:16px;border:0;
+border-radius:14px;background:#ff7a18;color:#fff;
+font-size:18px;font-weight:700;cursor:pointer
+}
+#status{margin-top:20px;text-align:center}
+.success{background:#12331a;padding:15px;border-radius:12px}
+.loading{background:#2d2416;padding:15px;border-radius:12px}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>SCUM RP WHITELIST</h1>
+<p class="sub">Bewirb dich jetzt für den Server</p>
+
+<form id="whitelistForm" onsubmit="sendApplication(event)">
+
+<div class="section">Persönliche Angaben</div>
+<div class="grid">
+<div>
+<label>IC Name</label>
+<input id="icname" required>
+</div>
+<div>
+<label>Discord mit #</label>
+<input id="discord" required>
+</div>
+</div>
+
+<label>Steam ID</label>
+<input id="steamid" required>
+
+<div class="section">RP Erfahrung</div>
+
+<label>Wie lange spielst du bereits RP?</label>
+<input id="rptime" placeholder="z.B. 3 Jahre">
+
+<label>Auf welchen Servern/Spielen hast du RP-Erfahrung?</label>
+
+<div class="checks">
+<label class="chk"><input type="checkbox" name="rpgames" value="GTA RP"> GTA RP</label>
+<label class="chk"><input type="checkbox" name="rpgames" value="SCUM RP"> SCUM RP</label>
+<label class="chk"><input type="checkbox" name="rpgames" value="DayZ RP"> DayZ RP</label>
+<label class="chk"><input type="checkbox" name="rpgames" value="Arma RP"> Arma RP</label>
+<label class="chk"><input type="checkbox" name="rpgames" value="RedM RP"> RedM RP</label>
+</div>
+
+<div class="section">Bewerbung</div>
+
+<label>Beitrittsgrund</label>
+<textarea id="reason" required></textarea>
+
+<label>Charaktervorstellung</label>
+<textarea id="character" required></textarea>
+
+<label>Gewerbe (optional)</label>
+<input id="business">
+
+<div class="section">Regelwerk</div>
+
+<label>
+<input id="rules" type="checkbox" required>
+ Ich habe die Serverregeln gelesen und verstanden.
+</label>
+
+<button type="submit">Bewerbung absenden</button>
+</form>
+
+<div id="status"></div>
+</div>
+
+<script>
+const WEBHOOK_URL="https://discord.com/api/webhooks/1517303263924584609/cWj4BC5HXUeaxcsCBxg1IY9NADU5ITnR5aSv69FwNu4FS64Gdb3apCrUj1NsfaDniknf";
+
+async function sendApplication(e){
+e.preventDefault();
+
+document.getElementById("status").innerHTML='<div class="loading">⏳ Bewerbung wird gesendet...</div>';
+
+const games=[];
+document.querySelectorAll('input[name="rpgames"]:checked').forEach(x=>games.push(x.value));
+
+const payload={
+content:"<@&1517303649221480640>",
+embeds:[{
+title:"📋 Neue SCUM RP Bewerbung",
+color:16742912,
+fields:[
+{name:"IC Name",value:document.getElementById("icname").value},
+{name:"Discord",value:document.getElementById("discord").value},
+{name:"Steam ID",value:document.getElementById("steamid").value},
+{name:"RP Erfahrung",value:document.getElementById("rptime").value || "-"},
+{name:"RP Plattformen",value:games.join(", ") || "-"},
+{name:"Beitrittsgrund",value:document.getElementById("reason").value},
+{name:"Charaktervorstellung",value:document.getElementById("character").value},
+{name:"Gewerbe",value:document.getElementById("business").value || "Keins"},
+{name:"Regeln gelesen",value:document.getElementById("rules").checked ? "Ja":"Nein"}
+],
+timestamp:new Date().toISOString()
+}]
+};
+
+try{
+const r=await fetch(WEBHOOK_URL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(payload)
+});
+
+if(r.ok){
+document.getElementById("whitelistForm").reset();
+document.getElementById("status").innerHTML='<div class="success">✅ Bewerbung erfolgreich eingereicht. Das Team wurde benachrichtigt.</div>';
+}else{
+document.getElementById("status").innerHTML='❌ Fehler beim Senden.';
+}
+}catch(err){
+document.getElementById("status").innerHTML='❌ Webhook nicht erreichbar.';
+}
+}
+</script>
+</body>
+</html>
